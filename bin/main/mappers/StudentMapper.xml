@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spring5_mybatis_study.mapper.StudentMapper">
+
+	<sql id="selectSQL">
+		select stud_Id, name, email, dob, phone
+		from students
+	</sql>
+
+	<sql id="whereSQL">
+		<where>
+			<if test="studId != null">
+				stud_id = #{studId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="selectStudentById" parameterType="Student"
+		resultType="Student">
+		<include refid="selectSQL" />
+		<include refid="whereSQL" />
+	</select>
+
+	<resultMap type="Student" id="stdResult">
+		<id column="stud_id" property="studId" />
+		<result column="f" property="phone.countryCode" />
+		<result column="m" property="phone.stateCode" />
+		<result column="l" property="phone.number" />
+	</resultMap>
+
+	<select id="selectStudentByIdWithResultMap"
+		parameterType="Student" resultMap="stdResult">
+		select stud_id, name, email, dob
+		,
+		substring(phone, 1, 3) as f
+		, substring(phone, 5, 3) as m
+		,
+		substring(phone, 9, 4) as l
+		from students
+		where stud_id = #{studId}
+	</select>
+
+	<select id="selectStudentByAll" resultType="Student">
+		<include refid="selectSQL" />
+	</select>
+
+	<insert id="insertStudent" parameterType="Student">
+		insert into
+		students(stud_id, name, email, phone, dob)
+		values(#{studId}, #{name},
+		#{email}, #{phone}, #{dob})
+	</insert>
+
+	<!-- parameterType="int" 생략가능 -->
+	<delete id="deleteStudent" parameterType="int">
+		delete
+		from students
+		where stud_id = #{studId}
+	</delete>
+
+	<update id="updateStudent" parameterType="Student">
+		update students
+		set name
+		= #{name}, email = #{email}, phone = #{phone}, dob = #{dob}
+		where
+		stud_id = #{studId}
+	</update>
+
+	<select id="selectStudentByAllForHashMap" resultType="map">
+		<include refid="selectSQL" />
+	</select>
+
+	<resultMap id="StudentResult" type="Student">
+		<id property="studId" column="stud_id" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<result property="dob" column="dob" />
+	</resultMap>
+
+	<resultMap id="StudentResultAssociation" type="Student"
+		extends="StudentResult">
+		<association property="address"
+			resultMap="spring5_mybatis_study.mapper.AddressMapper.AddressResult" />
+	</resultMap>
+
+	<select id="selectStudentByIdAssociation"
+		resultMap="StudentResultAssociation">
+		select stud_id, name, email, phone, dob, a.addr_id, street,
+		city, state, zip, country
+		from students s
+		join addresses a
+		on s.addr_id =
+		a.addr_id
+		where stud_id = #{studId}
+	</select>
+
+	<!-- enum 타입 다루기 -->
+	<insert id="insertEnumStudent" parameterType="Student">
+		insert into
+		students(stud_id, name, email,phone, dob, gender)
+		values(#{studId},
+		#{name}, #{email}, #{phone}, #{dob}, #{gender})
+	</insert>
+
+	<delete id="deleteEnumStudnet" parameterType="int">
+		delete
+		from students
+		where stud_id = #{studId}
+	</delete>
+
+
+	<!-- 여러 개의 입력 파라미터 전달 -->
+	<sql id="where_name_email">
+		<where>
+			<if test="name != null">
+				name = #{name}
+			</if>
+			<if test="email != null">
+				AND email = #{email}
+			</if>
+		</where>
+	</sql>
+	
+	<resultMap type="Student" id="StudenGenderResult" extends="StudentResult">
+		<result property="gender" column="gender" />
+	</resultMap>
+	
+	<select id="selectStudentByMap" parameterType="map" resultMap="StudentResult">
+		<include refid="selectSQL"/>
+		<include refid="where_name_email"/>
+	</select>
+	
+	<select id="selectAllStudentByMap" parameterType="map" resultMap="StudentResult">
+		<include refid="selectSQL"/>
+		<include refid="where_name_email"/>
+	</select>
+	
+	<!-- ResultSet 처리방식의 재정의 -->
+	<select id="selectStudentForMap" parameterType="int" resultMap="StudentResult">
+		<include refid="selectSQL"/>
+		<include refid="whereSQL"/>
+	</select>
+
+</mapper>
