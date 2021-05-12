@@ -40,9 +40,24 @@ public class StudentServiceImpl implements StudentService {
 				map.put(student.getStudId(), student);
 			}
 		};
-		
-		// list<Student> -> handler -> Map<Integer, Student>map
+
 		sqlSession.select(namespace + ".selectStudentForMap", studId, handler);
+		return map;
+	}
+
+	@Override
+	public Map<Integer, Student> selectStudentForMap() {
+		Map<Integer, Student> map = new HashMap<>();
+
+		ResultHandler<Student> handler = new ResultHandler<Student>() {
+			@Override
+			public void handleResult(ResultContext<? extends Student> resultContext) {
+				Student student = resultContext.getResultObject();
+				map.put(student.getStudId(), student);
+			}
+		};
+		// list<Student> -> handler -> Map<Integer, Student>map
+		sqlSession.select(namespace + ".selectStudentForMap", handler);
 		return map;
 	}
 
