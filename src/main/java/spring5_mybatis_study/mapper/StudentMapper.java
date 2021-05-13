@@ -18,6 +18,8 @@ public interface StudentMapper {
 	
 	int updateStudent(Student student);
 	
+	int updateSetStudent(Student student);
+	
 	
 	List<Map<String, Object>> selectStudentByAllForHashMap();
 	

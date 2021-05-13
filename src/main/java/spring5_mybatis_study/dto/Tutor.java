@@ -51,6 +51,6 @@ public class Tutor {
 
 	@Override
 	public String toString() {
-		return String.format("Tutor [%s, %s, %s, %s, %s]", tutorId, name, email, address, courses);
+		return String.format("Tutor [%s %s %s %s %s]", tutorId, name, email, address, courses);
 	}
 }

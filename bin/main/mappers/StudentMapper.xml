@@ -15,8 +15,7 @@
 		</where>
 	</sql>
 
-	<select id="selectStudentById" parameterType="Student"
-		resultType="Student">
+	<select id="selectStudentById" parameterType="Student" resultType="Student">
 		<include refid="selectSQL" />
 		<include refid="whereSQL" />
 	</select>
@@ -60,11 +59,25 @@
 
 	<update id="updateStudent" parameterType="Student">
 		update students
-		set name
-		= #{name}, email = #{email}, phone = #{phone}, dob = #{dob}
+		set name = #{name}, email = #{email}, phone = #{phone}, dob = #{dob}
 		where
 		stud_id = #{studId}
 	</update>
+
+
+	<update id="updateSetStudent" parameterType="Student">
+	update students
+		<set>
+			<if test="name != null">name=#{name},</if>
+			<if test="email != null">email=#{email},</if>
+			<if test="phone != null">phone=#{phone},</if>
+			<if test="dob != null">dob=#{dob},</if>
+		</set>
+		<include refid="whereSQL"/>
+	</update>
+
+
+
 
 	<select id="selectStudentByAllForHashMap" resultType="map">
 		<include refid="selectSQL" />

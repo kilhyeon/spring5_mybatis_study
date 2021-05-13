@@ -118,6 +118,25 @@ public class StudentMapperTest {
 	}
 
 	@Test
+	public void test14UpdateSetStudent() {
+		log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + "()");
+		
+		Student student = new Student();
+		student.setStudId(1);
+		student.setPhone(new PhoneNumber("987-654-3211"));
+		student.setDob(new Date());
+		
+		int result = mapper.updateSetStudent(student);
+		Assert.assertSame(1, result);
+		
+		student.setPhone(new PhoneNumber("123-123-1234"));
+		student.setDob(new GregorianCalendar(1988, 04, 25).getTime());
+		
+		result = mapper.updateSetStudent(student);
+		Assert.assertSame(1, result);
+	}
+
+	@Test
 	public void test06DeleteStudent() {
 		log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + "()");
 
@@ -222,16 +241,16 @@ public class StudentMapperTest {
 		List<Student> list = mapper.selectAllStudentByMap(maps);
 		Assert.assertNotNull(list);
 		list.stream().forEach(System.out::println);
-		
+
 		maps.remove("email");
 		list = mapper.selectAllStudentByMap(maps);
 		list.stream().forEach(System.out::println);
-		
+
 		maps.clear();
 		maps.put("email", "timothy@gmail.com");
 		list = mapper.selectAllStudentByMap(maps);
 		list.stream().forEach(System.out::println);
-		
+
 		maps.clear();
 		list = mapper.selectAllStudentByMap(maps);
 		list.stream().forEach(System.out::println);

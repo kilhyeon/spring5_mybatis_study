@@ -48,14 +48,24 @@ public class StudentServiceTest {
 	@Test
 	public void testSelectStudentForMap2() {
 		log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + "()");
-		
+
 		Map<Integer, Student> map = service.selectStudentForMap2(1);
 		Assert.assertNotNull(map);
-		
+
 		for (Entry<Integer, Student> entry : map.entrySet()) {
 			System.out.printf("key(%s) - value(%s)%n", entry.getKey(), entry.getValue());
 		}
 
 	}
 
+	@Test
+	public void testSelectStudentForMap3() {
+		Map<Integer, Student> map = service.selectStudentForMap();
+
+		Assert.assertNotNull(map);
+
+		for (Entry<Integer, Student> entry : map.entrySet()) {
+			System.out.printf("key(%s) - value(%s)%n", entry.getKey(), entry.getValue());
+		}
+	}
 }

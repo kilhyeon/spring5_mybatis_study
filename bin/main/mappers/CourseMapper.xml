@@ -1,13 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="spring5_mybatis_study.mapper.CourseMapper">
-	
-	<resultMap type="Course" id="resCourse" >
+
+	<resultMap type="Course" id="resCourse">
 		<id property="courseId" column="course_id" />
 		<result property="name" column="name" />
 		<result property="description" column="description" />
 		<result property="startDate" column="start_date" />
 		<result property="endDate" column="end_date" />
 	</resultMap>
+
+	<sql id="selectSQL">
+		select course_id, name, description, start_date, end_date, tutor_id
+		  from courses
+	</sql>
+
+	<sql id="whereSQL">
+		<where>
+			<if test="courseId != null">
+				course_id = #{courseId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="selectCoursesByCondition" parameterType="map"
+		resultMap="resCourse">
+		select course_id, name, description, start_date, end_date, tutor_id
+		  from courses
+		<where>
+			<if test="tutorId != null">
+				and tutor_id = #{tutorId}
+			</if>
+			<if test="courseName != null">
+				and name like #{courseName}
+			</if>
+			<if test="startDate != null">
+				and start_date &gt;= #{startDate}
+			</if>
+			<if test="endDate != null">
+				and end_date &lt;= #{endDate}
+			</if>
+		</where>
+	</select>
+
+	<!-- 동적SQL - choose 조건 -->
+	<select id="selectCaseCourses" parameterType="map" resultMap="resCourse">
+		<include refid="selectSQL" />
+		<choose>
+			<when test="searchBy=='Tutor'">
+				where tutor_id=#{tutorId}
+			</when>
+			<when test="searchBy=='CourseName'">
+				where name like #{courseName}
+			</when>
+			<otherwise>
+				where end_date &gt;=now()
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 동적SQL - where 조건 -->
+	<sql id="whereSqlCDATA">
+		<where>
+			<if test="tutorId != null">
+	<![CDATA[ and tutor_id = #{tutorId} ]]>
+			</if>
+			<if test="courseName != null">
+	<![CDATA[ and name like #{courseName} ]]>
+			</if>
+			<if test="startDate != null">
+	<![CDATA[ and start_date >= #{startDate} ]]>
+			</if>
+			<if test="endDate != null">
+	<![CDATA[ and end_date <= #{endDate} ]]>
+			</if>
+		</where>
+	</sql>
 	
+	<select id="selectWhereCourses" parameterType="map" resultMap="resCourse">
+		<include refid="selectSQL" />
+		<include refid="whereSqlCDATA" />
+	</select>
+	
+	<!-- 동적SQL - trim 조건 -->
+	<select id="selectTrimCourses" parameterType="map" resultMap="resCourse">
+		<include refid="selectSQL"/>
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+			<!-- 아래 tutordId != null 조건이 참이면 앞부분에 where 자동 추가 -->
+			<if test="tutorID != null">
+				tutor_id = #{tutorId}
+			</if>
+			<!-- 만약 where가 추가 된 경우 and 절 추가, where 존재하지 않는 경우 where 추가하고 and 제거 -->
+			<if test="courseName != null">
+				and name like #{courseName}
+			</if>
+		</trim>
+	</select>
+	
+	<select id="selectCoursesForeachByTutors" parameterType="map" resultMap="resCourse">
+		<include refid="selectSQL"/>
+		<if test="tutorIds != null">
+			<where>
+				tutor_id IN
+				<foreach item="tutorId" collection="tutorIds" index="index" open="(" close=")" separator=",">
+						#{tutorId}
+				</foreach>
+			</where>		
+		</if>	
+	</select>
+	
+	<insert id="insertCourses" parameterType="map">
+		insert into courses(course_id, name, description, start_date, end_date, tutor_id) values 
+		<foreach item="item" collection="tutors" separator=" ," index="index">
+			(#{item.courseId}, #{item.name}, #{item.description}, #{item.startDate}, #{item.endDate}, #{item.tutorId})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteCourses" parameterType="int">
+		delete
+		  from courses
+		 where course_id = #{courseId}
+	</delete>
+	
+	<update id="updateSetCourses" parameterType="Course">
+		update courses
+		<set>
+			<if test="name != null">name=#{name},</if>
+			<if test="description != null">description=#{description},</if>
+		
+		</set>
+		<include refid="whereSQL"/>
+	</update>
 </mapper>

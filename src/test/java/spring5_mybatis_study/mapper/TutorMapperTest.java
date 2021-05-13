@@ -22,32 +22,31 @@ import spring5_mybatis_study.dto.Tutor;
 @ContextConfiguration(classes = { ContextRoot.class })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TutorMapperTest {
-	private static final Log log = LogFactory.getLog(TutorMapperTest.class);
+	protected static final Log log = LogFactory.getLog(TutorMapperTest.class);
 
 	@Autowired
 	private TutorMapper mapper;
 
 	@After
 	public void tearDown() throws Exception {
-		// test메서드 끝날때 마다 호출
 		System.out.println();
 	}
 
 	@Test
 	public void testSelectTutorByTutorId() {
 		log.debug(Thread.currentThread().getStackTrace()[1].getMethodName() + "()");
-		
+
 		Tutor findTutor = new Tutor();
 		findTutor.setTutorId(1);
-		
+
 		Tutor tutor = mapper.selectTutorByTutorId(findTutor);
 		Assert.assertEquals(tutor.getTutorId(), findTutor.getTutorId());
-		
+
 		log.trace(tutor.getTutorId() + " : " + tutor.getName());
-		
+		log.debug(tutor.toString());
+
 		List<Course> list = tutor.getCourses();
-		
-		list.stream().forEach(System.out::println);
+		list.stream().forEach(t -> log.debug(t.toString()));
 	}
 
 }
